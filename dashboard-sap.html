@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP - Visualización Futurista</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <style>
+        :root {
+            --future-blue: #00a8ff;
+            --dark-space: #0a192f;
+            --neon-cyan: #00d1ff;
+            --matrix-green: #00ff9d;
+            --deep-purple: #6a00f4;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-space);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        header {
+            background: linear-gradient(135deg, #0056b3 0%, #003366 100%);
+            color: #fff;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="rgba(0,168,255,0.2)" stroke-width="0.5"/></svg>');
+            opacity: 0.3;
+        }
+        h1, h2, h3 {
+            font-weight: 300;
+        }
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 168, 255, 0.3);
+        }
+        h2 {
+            font-size: 2.2rem;
+            color: var(--future-blue);
+            border-bottom: 1px solid rgba(0, 168, 255, 0.3);
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+        }
+        h3 {
+            color: var(--neon-cyan);
+            font-size: 1.5rem;
+        }
+        .section {
+            background: rgba(16, 36, 54, 0.6);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 168, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 168, 255, 0.3);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .card {
+            background: rgba(10, 25, 47, 0.8);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 168, 255, 0.1);
+            border-color: var(--future-blue);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin: 2rem 0;
+        }
+        .timeline-container {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+            margin: 3rem 0;
+        }
+        .timeline {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            padding-left: 50px;
+        }
+        .era {
+            flex: 0 0 300px;
+            margin-right: 50px;
+            background: rgba(0, 168, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--future-blue);
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .era:hover {
+            opacity: 1;
+        }
+        .era h3 {
+            margin-top: 0;
+            color: white;
+        }
+        .era p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 168, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+        }
+        .neon-text {
+            text-shadow: 0 0 5px var(--future-blue), 
+                         0 0 10px var(--future-blue), 
+                         0 0 20px rgba(0, 119, 182, 0.7);
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .metric {
+            background: rgba(0, 168, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border-bottom: 3px solid var(--future-blue);
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--matrix-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0.5rem 0;
+        }
+        .metric-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        #sap-architecture {
+            height: 500px;
+            position: relative;
+            margin: 3rem 0;
+        }
+        .module {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 168, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--future-blue);
+            transition: all 0.5s ease;
+        }
+        .module h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: white;
+        }
+        .module p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: rgba(106, 0, 244, 0.3);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--deep-purple);
+            box-shadow: 0 0 20px rgba(106, 0, 244, 0.5);
+        }
+        .data-flow {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--future-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 5px 1px var(--future-blue);
+        }
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            margin-top: 3rem;
+            border-top: 1px solid rgba(0, 168, 255, 0.2);
+        }
+        /* Botón de regreso */
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 168, 255, 0.2);
+            border: 1px solid var(--future-blue);
+            color: var(--future-blue);
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+        .btn-back:hover {
+            background: rgba(0, 168, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
+        }
+        .btn-back i {
+            font-size: 1.1rem;
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            .btn-back {
+                top: 15px;
+                left: 15px;
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Botón de regreso -->
+        <a href="WEB-DNexus.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Inicio
+        </a>
+
+        <div class="container">
+            <h1 class="neon-text">SAP Visualización Futurista</h1>
+            <p>Explora el ecosistema SAP a través de visualizaciones interactivas</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="architecture" class="section">
+            <h2>Arquitectura Modular de SAP</h2>
+            <p>Interactúa con los módulos principales del sistema SAP y descubre cómo se integran:</p>
+            <div id="sap-architecture">
+                <div class="core">
+                    <h3>S/4HANA</h3>
+                    <p>Núcleo Central</p>
+                </div>
+                <!-- Módulos se posicionarán dinámicamente con JS -->
+            </div>
+        </section>
+
+        <section id="benefits" class="section">
+            <h2>Beneficios Clave</h2>
+            <p>Comparativa del impacto antes y después de implementar SAP:</p>
+            <div class="chart-container">
+                <canvas id="benefits-chart"></canvas>
+            </div>
+            <div class="dashboard">
+                <div class="metric">
+                    <div class="metric-label">Optimización de Procesos</div>
+                    <div class="metric-value" id="process-optimization">78%</div>
+                    <div class="metric-label">Incremento</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Reducción de Costos</div>
+                    <div class="metric-value" id="cost-reduction">45%</div>
+                    <div class="metric-label">Promedio</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Toma de Decisiones</div>
+                    <div class="metric-value" id="decision-speed">3.2x</div>
+                    <div class="metric-label">Más rápido</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Integración</div>
+                    <div class="metric-value" id="integration">92%</div>
+                    <div class="metric-label">Sistemas conectados</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="modules" class="section">
+            <h2>Módulos por Industria</h2>
+            <p>Distribución de los módulos más utilizados según sector industrial:</p>
+            <div class="grid">
+                <div class="card pulse">
+                    <h3>Manufactura</h3>
+                    <ul>
+                        <li>PP (90% adopción)</li>
+                        <li>MM (85% adopción)</li>
+                        <li>QM (75% adopción)</li>
+                    </ul>
+                </div>
+                <div class="card pulse">
+                    <h3>Retail</h3>
+                    <ul>
+                        <li>SD (95% adopción)</li>
+                        <li>MM (80% adopción)</li>
+                        <li>CRM (70% adopción)</li>
+                    </ul>
+                </div>
+                <div class="card pulse">
+                    <h3>Servicios Financieros</h3>
+                    <ul>
+                        <li>FI (100% adopción)</li>
+                        <li>CO (90% adopción)</li>
+                        <li>TR (75% adopción)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="evolution" class="section">
+            <h2>Evolución Histórica</h2>
+            <p>Línea de tiempo interactiva de la plataforma SAP:</p>
+            <div class="timeline-container">
+                <div class="timeline">
+                    <div class="era" data-year="1972">
+                        <h3>Fundación de SAP</h3>
+                        <p>Primer sistema ERP R/1</p>
+                    </div>
+                    <div class="era" data-year="1992">
+                        <h3>SAP R/3</h3>
+                        <p>Arquitectura cliente-servidor</p>
+                    </div>
+                    <div class="era" data-year="2004">
+                        <h3>SAP ERP</h3>
+                        <p>Plataforma unificada</p>
+                    </div>
+                    <div class="era" data-year="2015">
+                        <h3>S/4HANA</h3>
+                        <p>Base de datos en memoria</p>
+                    </div>
+                    <div class="era" data-year="2020">
+                        <h3>Inteligencia Integrada</h3>
+                        <p>AI y Machine Learning</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>SAP Visualization &copy; 2025 | Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Arquitectura Modular Interactiva
+        document.addEventListener('DOMContentLoaded', function() {
+            const architecture = document.getElementById('sap-architecture');
+            const modules = [
+                { name: "FI", label: "Finanzas", radius: 200, angle: 0 },
+                { name: "CO", label: "Control", radius: 200, angle: 60 },
+                { name: "SD", label: "Ventas", radius: 200, angle: 120 },
+                { name: "MM", label: "Materiales", radius: 200, angle: 180 },
+                { name: "PP", label: "Producción", radius: 200, angle: 240 },
+                { name: "QM", label: "Calidad", radius: 200, angle: 300 },
+                { name: "HCM", label: "RRHH", radius: 300, angle: 30 },
+                { name: "CRM", label: "Clientes", radius: 300, angle: 90 },
+                { name: "SCM", label: "Cadena Sum.", radius: 300, angle: 150 },
+                { name: "PLM", label: "Ciclo Vida", radius: 300, angle: 210 },
+                { name: "SRM", label: "Proveedores", radius: 300, angle: 270 },
+                { name: "BW", label: "Data Warehouse", radius: 300, angle: 330 }
+            ];
+            modules.forEach(mod => {
+                const moduleEl = document.createElement('div');
+                moduleEl.className = 'module';
+                moduleEl.innerHTML = `<h4>${mod.name}</h4><p>${mod.label}</p>`;
+                const centerX = architecture.offsetWidth / 2;
+                const centerY = architecture.offsetHeight / 2;
+                function animateOrbit() {
+                    const time = Date.now() * 0.0005;
+                    const angle = mod.angle + time * 20;
+                    const x = centerX + Math.cos(angle * Math.PI / 180) * mod.radius - 60;
+                    const y = centerY + Math.sin(angle * Math.PI / 180) * mod.radius - 60;
+                    moduleEl.style.left = `${x}px`;
+                    moduleEl.style.top = `${y}px`;
+                    if (time % 1 < 0.02) {
+                        const flow = document.createElement('div');
+                        flow.className = 'data-flow';
+                        flow.style.left = `${x + 60}px`;
+                        flow.style.top = `${y + 60}px`;
+                        architecture.appendChild(flow);
+                        gsap.to(flow, {
+                            x: centerX - x - 60,
+                            y: centerY - y - 60,
+                            opacity: 0,
+                            duration: 1,
+                            onComplete: () => flow.remove()
+                        });
+                    }
+                    requestAnimationFrame(animateOrbit);
+                }
+                architecture.appendChild(moduleEl);
+                animateOrbit();
+                moduleEl.addEventListener('mouseenter', () => {
+                    gsap.to(moduleEl, {
+                        scale: 1.2,
+                        backgroundColor: 'rgba(0, 168, 255, 0.4)',
+                        duration: 0.3
+                    });
+                });
+                moduleEl.addEventListener('mouseleave', () => {
+                    gsap.to(moduleEl, {
+                        scale: 1,
+                        backgroundColor: 'rgba(0, 168, 255, 0.2)',
+                        duration: 0.3
+                    });
+                });
+            });
+
+            // 2. Gráfico de Beneficios
+            const ctx = document.getElementById('benefits-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Eficiencia', 'Reducción Costos', 'Toma Decisiones', 'Integración', 'Escalabilidad', 'Experiencia Cliente'],
+                    datasets: [{
+                        label: 'Antes de SAP',
+                        data: [35, 20, 40, 25, 30, 45],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                    }, {
+                        label: 'Con SAP',
+                        data: [85, 75, 90, 95, 80, 88],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(0, 168, 255, 0.2)' },
+                            pointLabels: { color: '#fff' },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(255, 255, 255, 0.5)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#fff' }
+                        }
+                    }
+                }
+            });
+
+            // 3. Línea de Tiempo Animada
+            gsap.registerPlugin(ScrollTrigger);
+            const timelineEras = gsap.utils.toArray('.era');
+            timelineEras.forEach((era, i) => {
+                gsap.from(era, {
+                    scrollTrigger: {
+                        trigger: ".timeline-container",
+                        start: "top center",
+                        end: "bottom center",
+                        scrub: 1
+                    },
+                    x: (i * 100) + 50,
+                    opacity: 0.3,
+                    duration: 1
+                });
+            });
+
+            // 4. Dashboard en Tiempo Real (simulación)
+            function updateMetrics() {
+                const optimization = 75 + Math.floor(Math.random() * 10);
+                const reduction = 40 + Math.floor(Math.random() * 12);
+                const speed = (2.8 + Math.random() * 0.8).toFixed(1);
+                const integration = 90 + Math.floor(Math.random() * 8);
+                document.getElementById('process-optimization').textContent = `${optimization}%`;
+                document.getElementById('cost-reduction').textContent = `${reduction}%`;
+                document.getElementById('decision-speed').textContent = `${speed}x`;
+                document.getElementById('integration').textContent = `${integration}%`;
+                gsap.fromTo(".metric-value", 
+                    { scale: 1.2, opacity: 0.5 },
+                    { scale: 1, opacity: 1, duration: 0.5 }
+                );
+            }
+            setInterval(updateMetrics, 3000);
+            updateMetrics();
+        });
+    </script>
+</body>
+</html>

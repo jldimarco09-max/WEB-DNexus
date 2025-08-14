@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Talent - Desarrollo de Capital Humano</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #8a2be2;
+            --dark: #0a0e17;
+            --darker: #071022;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff3860;
+            --text-color-secondary: rgba(255, 255, 255, 0.7);
+        }
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1.5rem;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .highlight {
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.7);
+        }
+        .subtitle {
+            color: var(--text-color-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 300;
+            max-width: 800px;
+        }
+        .hero {
+            position: relative;
+            height: 500px;
+            margin-bottom: 4rem;
+            border-radius: 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.9) 0%, rgba(20, 27, 45, 0.9) 100%);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 242, 255, 0.2);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem;
+        }
+        .hero h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            opacity: 0.9;
+        }
+        .cta-button {
+            background: rgba(0, 242, 255, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 1rem 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+        .cta-button:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(0, 242, 255, 0.5);
+        }
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 40px;
+            margin-bottom: 4rem;
+        }
+        .program-card {
+            background: rgba(20, 27, 45, 0.7);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .program-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 242, 255, 0.2);
+        }
+        .program-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 242, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .program-card:hover::before {
+            left: 100%;
+        }
+        .program-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .program-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+        .program-level {
+            display: inline-block;
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .program-description {
+            color: var(--text-color-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .program-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .feature {
+            background: rgba(138, 43, 226, 0.1);
+            color: rgba(138, 43, 226, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+        .program-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        .methodology {
+            background: rgba(20, 27, 45, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .methodology h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .method-step {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .method-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.2);
+        }
+        .step-number {
+            display: inline-flex;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: var(--dark);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .step-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .step-description {
+            color: var(--text-color-secondary);
+            line-height: 1.6;
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 4rem;
+        }
+        .result-card {
+            background: rgba(20, 27, 45, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.2);
+        }
+        .result-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        .result-label {
+            font-size: 1.1rem;
+            color: var(--text-color-secondary);
+        }
+        .testimonials {
+            margin-bottom: 4rem;
+        }
+        .testimonials h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .testimonial-card {
+            background: rgba(20, 27, 45, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.2);
+        }
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 5rem;
+            color: rgba(0, 242, 255, 0.1);
+            font-family: serif;
+            line-height: 1;
+        }
+        .testimonial-content {
+            margin-bottom: 1.5rem;
+            color: var(--text-color-secondary);
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .author-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+        }
+        .author-info h4 {
+            margin: 0;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        .author-info h4:hover {
+            color: var(--success);
+        }
+        .author-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .cta-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.95) 0%, rgba(20, 27, 45, 0.95) 100%);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            margin-bottom: 4rem;
+        }
+        .cta-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+        .cta-section p {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: var(--text-color-secondary);
+            font-size: 1.1rem;
+        }
+        .tech-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 3rem 0;
+        }
+        .tech-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tech-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 242, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .tech-icon:hover::before {
+            left: 100%;
+        }
+        .tech-icon:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: rgba(0, 242, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            width: var(--width);
+            transition: width 0.8s ease;
+        }
+        .insight-card {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            position: relative;
+        }
+        .insight-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            margin: 15px;
+            box-shadow: 0 0 10px var(--success);
+        }
+        .insight-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: var(--success);
+        }
+        .insight-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--success);
+            font-family: 'Orbitron', sans-serif;
+        }
+        .insight-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-color-secondary);
+        }
+        .insight-recommendation {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid var(--success);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(138, 43, 226, 0.8);
+            color: white;
+            border: 1px solid var(--secondary);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+        .back-button:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(138, 43, 226, 0.8);
+        }
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+            }
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .programs-grid, .results, .testimonials-grid, .methodology-grid {
+                grid-template-columns: 1fr;
+            }
+            .back-button {
+                bottom: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <header>
+            <div>
+                <h1>QUANTUM <span class="highlight">TALENT</span></h1>
+                <p class="subtitle">Potencia el capital humano de tu empresa con nuestros programas de capacitación personalizados. Diseñamos cursos y talleres enfocados en las últimas tendencias tecnológicas y mejores prácticas de gestión.</p>
+            </div>
+        </header>
+
+        <div class="hero">
+            <div class="hero-content">
+                <h2>Transforma a tu equipo en <span class="highlight">AGENTES DEL FUTURO</span></h2>
+                <p>Capacitación avanzada en inteligencia artificial, análisis de datos, ciberseguridad y liderazgo digital para empresas que quieren liderar la revolución tecnológica.</p>
+                <a href="#contact" class="cta-button">Solicitar Demostración</a>
+            </div>
+        </div>
+
+        <div class="programs-grid">
+            <div class="program-card">
+                <h3><span class="program-icon">🤖</span> Inteligencia Artificial Aplicada</h3>
+                <span class="program-level">Nivel Avanzado</span>
+                <p class="program-description">Domina los fundamentos y aplicaciones prácticas de la IA en entornos empresariales. Aprende a implementar soluciones de machine learning, procesamiento del lenguaje natural y visión por computadora.</p>
+                <div class="program-features">
+                    <span class="feature">Python & TensorFlow</span>
+                    <span class="feature">Proyectos reales</span>
+                    <span class="feature">40 horas</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="--width: 98%"></div>
+                </div>
+                <div class="program-stats">
+                    <div class="stat">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">APROBACIÓN</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">+45%</div>
+                        <div class="stat-label">PRODUCTIVIDAD</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">SEMANAS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="program-card">
+                <h3><span class="program-icon">📊</span> Análisis de Datos Estratégico</h3>
+                <span class="program-level">Nivel Intermedio</span>
+                <p class="program-description">Convierte datos complejos en insights accionables. Aprende técnicas avanzadas de visualización, análisis predictivo y toma de decisiones basada en datos para impulsar el crecimiento de tu negocio.</p>
+                <div class="program-features">
+                    <span class="feature">Power BI & Tableau</span>
+                    <span class="feature">SQL & Python</span>
+                    <span class="feature">32 horas</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="--width: 95%"></div>
+                </div>
+                <div class="program-stats">
+                    <div class="stat">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">APROBACIÓN</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">+38%</div>
+                        <div class="stat-label">EFICIENCIA</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">SEMANAS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="program-card">
+                <h3><span class="program-icon">🛡️</span> Ciberseguridad Avanzada</h3>
+                <span class="program-level">Nivel Experto</span>
+                <p class="program-description">Protege tus sistemas y datos contra amenazas cibernéticas. Capacitación en pentesting, gestión de vulnerabilidades, criptografía y arquitectura de seguridad para profesionales de TI.</p>
+                <div class="program-features">
+                    <span class="feature">Ethical Hacking</span>
+                    <span class="feature">Certificación Oficial</span>
+                    <span class="feature">60 horas</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="--width: 99%"></div>
+                </div>
+                <div class="program-stats">
+                    <div class="stat">
+                        <div class="stat-value">99%</div>
+                        <div class="stat-label">APROBACIÓN</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">+60%</div>
+                        <div class="stat-label">SEGURIDAD</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">SEMANAS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h2>Nuestra Metodología Híbrida</h2>
+            <div class="methodology-grid">
+                <div class="method-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Diagnóstico</h3>
+                    <p class="step-description">Evaluamos las necesidades específicas de tu equipo y empresa para diseñar un programa de capacitación completamente personalizado.</p>
+                </div>
+                <div class="method-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Gamificación</h3>
+                    <p class="step-description">Aprendizaje interactivo con elementos de juego, desafíos y recompensas para maximizar la motivación y retención del conocimiento.</p>
+                </div>
+                <div class="method-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Simulaciones</h3>
+                    <p class="step-description">Entornos virtuales de práctica donde los participantes aplican sus conocimientos en escenarios realistas y de alta presión.</p>
+                </div>
+                <div class="method-step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Mentoría</h3>
+                    <p class="step-description">Sesiones personalizadas con expertos de la industria que guían el desarrollo profesional y resuelven dudas específicas.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="result-value">+78%</div>
+                <div class="result-label">Retención de Talentos</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">3.2x</div>
+                <div class="result-label">Retorno de Inversión</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">94%</div>
+                <div class="result-label">Satisfacción del Cliente</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">24/7</div>
+                <div class="result-label">Acceso a Plataforma</div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <h2>Testimonios de Nuestros Alumnos</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-content">"La capacitación en IA transformó completamente mi forma de trabajar. Ahora automatizo tareas que antes tomaban días y puedo enfocarme en proyectos estratégicos. El enfoque práctico fue clave para mi éxito."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MR</div>
+                        <div class="author-info">
+                            <h4>María Rodríguez</h4>
+                            <p>Directora de Operaciones, TechGlobal</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-content">"El programa de ciberseguridad fue desafiante pero increíblemente valioso. Hoy lidero el equipo de seguridad de mi empresa con confianza y conocimientos de vanguardia. La mentoría fue un diferenciador clave."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JP</div>
+                        <div class="author-info">
+                            <h4>Juan Pérez</h4>
+                            <p>CISO, Financiera Futura</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-content">"La combinación de teoría y práctica en tiempo real hizo que el aprendizaje fuera exponencial. Los proyectos con datos reales marcaron la diferencia y me permitieron aplicar inmediatamente lo aprendido."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">LC</div>
+                        <div class="author-info">
+                            <h4>Laura Chen</h4>
+                            <p>Analista de Datos, HealthInnovate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section" id="contact">
+            <h2>Prepara a tu equipo para el futuro</h2>
+            <p>Contáctanos para diseñar un programa de capacitación personalizado que se adapte exactamente a las necesidades de tu empresa y objetivos estratégicos.</p>
+            <a href="mailto:jldimarco2005@yahoo.com.ar" class="cta-button">Solicitar Propuesta</a>
+            
+            <div class="tech-icons">
+                <div class="tech-icon">AI</div>
+                <div class="tech-icon">ML</div>
+                <div class="tech-icon">DL</div>
+                <div class="tech-icon">DS</div>
+                <div class="tech-icon">VR</div>
+                <div class="tech-icon">AR</div>
+                <div class="tech-icon">BI</div>
+                <div class="tech-icon">CI</div>
+            </div>
+        </div>
+    </div>
+    <button onclick="window.location.href='WEB-DNexus.html'" class="back-button">← Regresar a DNexus</button>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Inicializar partículas
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#00f2ff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.4, width: 1 },
+                    move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out" }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RRHH Futurista | Dashboard</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset y Estilos Globales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0F0F1A 0%, #12122D 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animación de entrada */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Efecto Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px #00F5FF;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 15, 26, 0.8);
+            border-bottom: 1px solid #00F5FF;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00F5FF, #9D4EDD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .btn-nav {
+            background: rgba(0, 245, 255, 0.2);
+            border: 1px solid #00F5FF;
+            padding: 10px 15px;
+            border-radius: 50px;
+            color: #00F5FF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .btn-nav:hover {
+            background: rgba(0, 245, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 40px 5%;
+            text-align: center;
+            max-width: 900px;
+            margin: 20px auto;
+            border-radius: 20px;
+            background: rgba(15, 15, 26, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+            animation: fadeIn 1.2s ease-out forwards;
+            opacity: 0;
+        }
+        .hero h1 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00F5FF, #9D4EDD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero p {
+            color: #ccc;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: linear-gradient(90deg, #9D4EDD, #00F5FF);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #9D4EDD;
+        }
+
+        /* Grid Principal */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 30px 5%;
+        }
+
+        /* Gráficos */
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+        canvas {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        /* Títulos */
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00F5FF, #0EFFBD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Botones */
+        .btn {
+            background: linear-gradient(90deg, #9D4EDD, #00F5FF);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #9D4EDD;
+        }
+
+        /* Efecto Neón */
+        .neon-text {
+            text-shadow: 0 0 5px #00F5FF, 0 0 10px #00F5FF;
+        }
+
+        /* Animaciones */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Listas */
+        ul {
+            list-style: none;
+        }
+        li {
+            margin-bottom: 10px;
+            border-left: 3px solid #00F5FF;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a href="WEB-DNexus.html" class="btn-nav">
+            <i class="fas fa-arrow-left"></i> Inicio
+        </a>
+        <div class="logo neon-text">RRHH FUTURISTA</div>
+        <div>
+            <button class="btn"><i class="fas fa-user"></i> Mi Perfil</button>
+        </div>
+    </nav>
+
+    <!-- Sección Hero - Texto Mejorado -->
+    <section class="hero">
+        <h1>Innovamos en Seguridad Laboral y Gestión Humana</h1>
+        <p>
+            Protegemos tu organización con soluciones integrales: desde la evaluación de riesgos hasta protocolos avanzados de seguridad. 
+            Impulsamos el bienestar, desarrollo y eficiencia de tu equipo con una gestión de RRHH estratégica y humana.
+        </p>
+        <button class="btn">
+            <i class="fas fa-shield-alt"></i> Conoce Nuestras Soluciones
+        </button>
+    </section>
+
+    <!-- Dashboard -->
+    <main class="dashboard">
+        <!-- Card 1: Empleados por Departamento -->
+        <div class="glass-card">
+            <h3><i class="fas fa-users"></i> Empleados por Departamento</h3>
+            <div class="chart-container">
+                <canvas id="deptChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 2: Solicitudes Pendientes -->
+        <div class="glass-card">
+            <h3><i class="fas fa-tasks"></i> Solicitudes Pendientes</h3>
+            <div class="chart-container">
+                <canvas id="requestsChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 3: Satisfacción -->
+        <div class="glass-card">
+            <h3><i class="fas fa-smile"></i> Satisfacción (2025)</h3>
+            <div class="chart-container">
+                <canvas id="satisfactionChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 4: Rotación de Personal -->
+        <div class="glass-card">
+            <h3><i class="fas fa-exchange-alt"></i> Rotación de Personal</h3>
+            <div class="chart-container">
+                <canvas id="turnoverChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 5: Horas Extras -->
+        <div class="glass-card">
+            <h3><i class="fas fa-clock"></i> Horas Extras</h3>
+            <div class="chart-container">
+                <canvas id="overtimeChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 6: Distribución de Edades -->
+        <div class="glass-card">
+            <h3><i class="fas fa-user-friends"></i> Distribución de Edades</h3>
+            <div class="chart-container">
+                <canvas id="ageChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 7: Cumpleaños -->
+        <div class="glass-card">
+            <h3><i class="fas fa-birthday-cake"></i> Cumpleaños</h3>
+            <div class="chart-container">
+                <canvas id="birthdayChart"></canvas>
+            </div>
+        </div>
+        <!-- Card 8: Noticias -->
+        <div class="glass-card">
+            <h3><i class="fas fa-bullhorn"></i> Últimas Noticias</h3>
+            <ul>
+                <li>
+                    <strong>Nueva Política de Teletrabajo</strong>
+                    <p style="color: #ccc;">Actualizada el 15/07/2025</p>
+                </li>
+                <li style="border-left-color: #9D4EDD;">
+                    <strong>Evento: Día del Empleado</strong>
+                    <p style="color: #ccc;">25/08/2025 - Parque Central</p>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        // Gráfico 1: Empleados por Departamento
+        const deptChart = new Chart(
+            document.getElementById('deptChart'),
+            {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ventas', 'TI', 'Marketing', 'RRHH', 'Operaciones'],
+                    datasets: [{
+                        data: [30, 25, 15, 10, 20],
+                        backgroundColor: [
+                            '#00F5FF',
+                            '#9D4EDD',
+                            '#0EFFBD',
+                            '#FF00FF',
+                            '#FF9F1C'
+                        ],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: 'white' }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            }
+        );
+        // Gráfico 2: Solicitudes Pendientes
+        const requestsChart = new Chart(
+            document.getElementById('requestsChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: ['Vacaciones', 'Licencias', 'Capacitación', 'Cambio de Datos'],
+                    datasets: [{
+                        label: 'Pendientes',
+                        data: [12, 5, 8, 3],
+                        backgroundColor: 'rgba(0, 245, 255, 0.7)',
+                        borderColor: '#00F5FF',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            }
+        );
+        // Gráfico 3: Satisfacción
+        const satisfactionChart = new Chart(
+            document.getElementById('satisfactionChart'),
+            {
+                type: 'radar',
+                data: {
+                    labels: ['Salario', 'Beneficios', 'Equipo', 'Crecimiento', 'Ambiente'],
+                    datasets: [{
+                        label: '2025',
+                        data: [85, 78, 92, 80, 88],
+                        backgroundColor: 'rgba(157, 78, 221, 0.2)',
+                        borderColor: '#9D4EDD',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#9D4EDD'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            suggestedMin: 50,
+                            suggestedMax: 100,
+                            ticks: { color: 'white', backdropColor: 'transparent' }
+                        }
+                    },
+                    plugins: { legend: { labels: { color: 'white' } } }
+                }
+            }
+        );
+        // Gráfico 4: Rotación de Personal
+        const turnoverChart = new Chart(
+            document.getElementById('turnoverChart'),
+            {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Tasa de Rotación (%)',
+                        data: [8, 5, 10, 7, 6, 9],
+                        borderColor: '#FF00FF',
+                        backgroundColor: 'rgba(255, 0, 255, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FF00FF',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } }
+                    },
+                    plugins: { legend: { labels: { color: 'white' } } }
+                }
+            }
+        );
+        // Gráfico 5: Horas Extras
+        const overtimeChart = new Chart(
+            document.getElementById('overtimeChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: ['Ventas', 'TI', 'Marketing', 'RRHH'],
+                    datasets: [{
+                        label: 'Horas/mes',
+                        data: [20, 35, 15, 10],
+                        backgroundColor: [
+                            'rgba(0, 245, 255, 0.7)',
+                            'rgba(157, 78, 221, 0.7)',
+                            'rgba(14, 255, 189, 0.7)',
+                            'rgba(255, 0, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            '#00F5FF',
+                            '#9D4EDD',
+                            '#0EFFBD',
+                            '#FF00FF'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white' } }
+                    },
+                    plugins: { legend: { display: false } },
+                    animation: { duration: 2000, easing: 'easeOutQuart' }
+                }
+            }
+        );
+        // Gráfico 6: Distribución de Edades
+        const ageChart = new Chart(
+            document.getElementById('ageChart'),
+            {
+                type: 'polarArea',
+                data: {
+                    labels: ['18-25', '26-35', '36-45', '46+'],
+                    datasets: [{
+                        data: [15, 45, 30, 10],
+                        backgroundColor: [
+                            'rgba(0, 245, 255, 0.7)',
+                            'rgba(157, 78, 221, 0.7)',
+                            'rgba(14, 255, 189, 0.7)',
+                            'rgba(255, 0, 255, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: { r: { grid: { color: 'rgba(255, 255, 255, 0.1)' } } },
+                    plugins: { legend: { labels: { color: 'white' } } }
+                }
+            }
+        );
+        // Gráfico 7: Cumpleaños
+        const birthdayChart = new Chart(
+            document.getElementById('birthdayChart'),
+            {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '🎂',
+                        data: [
+                            { x: 5, y: 1 },
+                            { x: 12, y: 1 },
+                            { x: 20, y: 1 }
+                        ],
+                        pointRadius: 15,
+                        pointBackgroundColor: 'transparent',
+                        pointBorderColor: 'transparent',
+                        pointHoverRadius: 20
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { min: 1, max: 31, grid: { display: false }, ticks: { color: 'white' } },
+                        y: { display: false }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return `Cumpleaños: ${ctx.parsed.x} de Julio`;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+        // Animación para el gráfico de cumpleaños
+        document.getElementById('birthdayChart').style.animation = 'bounce 2s infinite';
+    </script>
+</body>
+</html>

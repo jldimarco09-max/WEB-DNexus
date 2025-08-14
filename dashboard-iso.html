@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum ISO - Gestión de Calidad y Medio Ambiente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #8a2be2;
+            --dark: #0a0e17;
+            --darker: #071022;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff3860;
+            --iso-blue: #0066ff;
+            --iso-green: #00cc88;
+            --iso-orange: #ff6600;
+            --iso-purple: #9d4edd;
+            --text-color-secondary: rgba(255, 255, 255, 0.7);
+            --gradient-1: linear-gradient(135deg, #0a0e17 0%, #141b2d 50%, #0a0e17 100%);
+            --gradient-2: linear-gradient(135deg, #00f2ff, #8a2be2);
+            --shadow-primary: 0 10px 40px rgba(0, 242, 255, 0.2);
+            --shadow-hover: 0 15px 50px rgba(0, 242, 255, 0.3);
+        }
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: var(--gradient-1);
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1.5rem;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+            font-size: 2.5rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .highlight {
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.7);
+        }
+        .subtitle {
+            color: var(--text-color-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 300;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        .hero {
+            position: relative;
+            height: 550px;
+            margin-bottom: 4rem;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--gradient-1);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: var(--shadow-primary);
+            backdrop-filter: blur(10px);
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 242, 255, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+        }
+        .hero h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.8rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+        }
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+        .cta-button {
+            background: rgba(0, 242, 255, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 1.2rem 3rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.8s;
+            z-index: -1;
+        }
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        .cta-button:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+        .iso-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 35px;
+            margin-bottom: 5rem;
+        }
+        .iso-card {
+            background: rgba(20, 27, 45, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .iso-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 242, 255, 0.15),
+                transparent
+            );
+            transition: 0.8s;
+            z-index: 1;
+        }
+        .iso-card:hover::before {
+            left: 100%;
+        }
+        .iso-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 242, 255, 0.25);
+        }
+        .iso-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 2;
+        }
+        .iso-card h3 .iso-number {
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px solid;
+        }
+        .iso-9001 .iso-number {
+            background: rgba(0, 102, 255, 0.15);
+            color: var(--iso-blue);
+            border-color: rgba(0, 102, 255, 0.3);
+        }
+        .iso-14001 .iso-number {
+            background: rgba(0, 204, 136, 0.15);
+            color: var(--iso-green);
+            border-color: rgba(0, 204, 136, 0.3);
+        }
+        .iso-45001 .iso-number {
+            background: rgba(255, 102, 0, 0.15);
+            color: var(--iso-orange);
+            border-color: rgba(255, 102, 0, 0.3);
+        }
+        .iso-9001::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--iso-blue);
+            opacity: 0.6;
+        }
+        .iso-14001::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--iso-green);
+            opacity: 0.6;
+        }
+        .iso-45001::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--iso-orange);
+            opacity: 0.6;
+        }
+        .iso-icon {
+            font-size: 30px;
+            opacity: 0.9;
+        }
+        .iso-description {
+            color: var(--text-color-secondary);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+            z-index: 2;
+        }
+        .iso-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+        .feature {
+            background: rgba(138, 43, 226, 0.15);
+            color: rgba(138, 43, 226, 0.9);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+        .iso-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 2;
+        }
+        .stat {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            flex: 1;
+            margin: 0 5px;
+        }
+        .stat:first-child {
+            margin-left: 0;
+        }
+        .stat:last-child {
+            margin-right: 0;
+        }
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .iso-9001 .stat-value {
+            color: var(--iso-blue);
+        }
+        .iso-14001 .stat-value {
+            color: var(--iso-green);
+        }
+        .iso-45001 .stat-value {
+            color: var(--iso-orange);
+        }
+        .visualization-section {
+            background: rgba(20, 27, 45, 0.8);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        .visualization-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 3.5rem;
+            font-size: 2.8rem;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 35px;
+        }
+        .vis-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 242, 255, 0.25);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        .vis-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 242, 255, 0.25);
+        }
+        .vis-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+        }
+        .vis-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 250px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-2);
+            border-radius: 6px;
+            width: 0;
+            transition: width 2s ease;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+        .progress-label {
+            font-size: 0.95rem;
+            color: var(--text-color-secondary);
+            text-align: center;
+            margin-top: 5px;
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax: 280px, 1fr);
+            gap: 35px;
+            margin-bottom: 5rem;
+        }
+        .result-card {
+            background: rgba(20, 27, 45, 0.8);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-2);
+            opacity: 0.8;
+        }
+        .result-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 242, 255, 0.25);
+        }
+        .result-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+        .result-label {
+            font-size: 1.2rem;
+            color: var(--text-color-secondary);
+            line-height: 1.6;
+        }
+        .benefits {
+            margin-bottom: 5rem;
+        }
+        .benefits h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 4rem;
+            font-size: 2.8rem;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 35px;
+        }
+        .benefit-card {
+            background: rgba(20, 27, 45, 0.8);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-2);
+            opacity: 0.8;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+        .benefit-card:hover::before {
+            transform: scaleX(1);
+        }
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 242, 255, 0.25);
+        }
+        .benefit-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+        .benefit-card:hover .benefit-icon {
+            transform: scale(1.1);
+        }
+        .benefit-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .benefit-description {
+            color: var(--text-color-secondary);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .cta-section {
+            text-align: center;
+            padding: 5rem 3rem;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            margin-bottom: 5rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 1;
+        }
+        .cta-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 3rem;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+            z-index: 2;
+            position: relative;
+        }
+        .cta-section p {
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+            color: var(--text-color-secondary);
+            font-size: 1.3rem;
+            line-height: 1.7;
+            z-index: 2;
+            position: relative;
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(138, 43, 226, 0.9);
+            color: white;
+            border: 1px solid var(--secondary);
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1000;
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
+            backdrop-filter: blur(10px);
+        }
+        .back-button:hover {
+            background: var(--secondary);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.9);
+        }
+        .chart-tooltip {
+            position: absolute;
+            background: var(--darker);
+            color: var(--light);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .hero {
+                height: 450px;
+            }
+            .hero h2 {
+                font-size: 2.8rem;
+            }
+            .hero p {
+                font-size: 1.2rem;
+            }
+            .hero-content {
+                padding: 2.5rem;
+            }
+            .cta-button {
+                padding: 1rem 2.5rem;
+                font-size: 1.1rem;
+            }
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .back-button {
+                bottom: 20px;
+                left: 20px;
+                padding: 12px 24px;
+                font-size: 14px;
+                border-radius: 35px;
+            }
+            .visualization-section {
+                padding: 2rem;
+            }
+            .visualization-section h2 {
+                font-size: 2.3rem;
+            }
+            .cta-section {
+                padding: 4rem 2rem;
+            }
+            .cta-section h2 {
+                font-size: 2.5rem;
+            }
+            .cta-section p {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .hero h2 {
+                font-size: 2.3rem;
+            }
+            .iso-cards-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .results {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .visualization-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <header>
+            <div>
+                <h1>QUANTUM <span class="highlight">ISO</span></h1>
+                <p class="subtitle">Gestión de calidad y medio ambiente con estándares internacionales para optimizar tus procesos y cumplir con las normativas ISO. Nuestra solución integral transforma la implementación de sistemas de gestión en una ventaja competitiva sostenible.</p>
+            </div>
+        </header>
+        <div class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h2>Excelencia Operativa con <span class="highlight">ESTÁNDARES ISO</span></h2>
+                <p>Integramos los principios de calidad, sostenibilidad y seguridad en un sistema unificado que impulsa la eficiencia, reduce riesgos y maximiza el valor para todas las partes interesadas.</p>
+                <a href="#contact" class="cta-button">Solicitar Auditoría Gratuita</a>
+            </div>
+        </div>
+        <div class="iso-cards-grid">
+            <div class="iso-card iso-9001">
+                <h3>
+                    <span class="iso-number">ISO 9001</span>
+                    <span class="iso-icon">⚙️</span>
+                </h3>
+                <p class="iso-description">Sistema de Gestión de Calidad que optimiza procesos, mejora la satisfacción del cliente y establece una cultura de mejora continua en toda la organización.</p>
+                <div class="iso-features">
+                    <span class="feature">Enfoque a procesos</span>
+                    <span class="feature">Mejora continua</span>
+                    <span class="feature">Satisfacción del cliente</span>
+                    <span class="feature">Control documental</span>
+                </div>
+                <div class="iso-stats">
+                    <div class="stat">
+                        <div class="stat-value">+45%</div>
+                        <div class="stat-label">EFICIENCIA</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">-30%</div>
+                        <div class="stat-label">ERRORES</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">CUMPLIMIENTO</div>
+                    </div>
+                </div>
+            </div>
+            <div class="iso-card iso-14001">
+                <h3>
+                    <span class="iso-number">ISO 14001</span>
+                    <span class="iso-icon">🌱</span>
+                </h3>
+                <p class="iso-description">Sistema de Gestión Ambiental que reduce el impacto ecológico, optimiza el uso de recursos y demuestra tu compromiso con la sostenibilidad y responsabilidad corporativa.</p>
+                <div class="iso-features">
+                    <span class="feature">Reducción de residuos</span>
+                    <span class="feature">Eficiencia energética</span>
+                    <span class="feature">Cumplimiento legal</span>
+                    <span class="feature">Evaluación ambiental</span>
+                </div>
+                <div class="iso-stats">
+                    <div class="stat">
+                        <div class="stat-value">-40%</div>
+                        <div class="stat-label">IMPACTO</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">+25%</div>
+                        <div class="stat-label">RECURSOS</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">CUMPLIMIENTO</div>
+                    </div>
+                </div>
+            </div>
+            <div class="iso-card iso-45001">
+                <h3>
+                    <span class="iso-number">ISO 45001</span>
+                    <span class="iso-icon">🛡️</span>
+                </h3>
+                <p class="iso-description">Sistema de Gestión de Seguridad y Salud en el Trabajo que previene accidentes, protege a los empleados y crea un entorno laboral seguro y saludable.</p>
+                <div class="iso-features">
+                    <span class="feature">Prevención de riesgos</span>
+                    <span class="feature">Cultura de seguridad</span>
+                    <span class="feature">Protección de empleados</span>
+                    <span class="feature">Gestión de incidentes</span>
+                </div>
+                <div class="iso-stats">
+                    <div class="stat">
+                        <div class="stat-value">-60%</div>
+                        <div class="stat-label">ACCIDENTES</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">+40%</div>
+                        <div class="stat-label">MORAL</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">99%</div>
+                        <div class="stat-label">CUMPLIMIENTO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="visualization-section">
+            <h2>Visualización de Cumplimiento Integrado</h2>
+            <div class="visualization-grid">
+                <div class="vis-card">
+                    <h3><span class="iso-icon">📊</span> Tendencias de Calidad</h3>
+                    <div class="vis-content">
+                        <div class="chart-container" id="qualityChart"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="--width: 92%"></div>
+                        </div>
+                        <div class="progress-label">Nivel de cumplimiento ISO 9001</div>
+                    </div>
+                </div>
+                <div class="vis-card">
+                    <h3><span class="iso-icon">🌍</span> Impacto Ambiental</h3>
+                    <div class="vis-content">
+                        <div class="chart-container" id="environmentChart"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="--width: 88%"></div>
+                        </div>
+                        <div class="progress-label">Reducción de huella de carbono</div>
+                    </div>
+                </div>
+                <div class="vis-card">
+                    <h3><span class="iso-icon">📈</span> Seguridad Laboral</h3>
+                    <div class="vis-content">
+                        <div class="chart-container" id="safetyChart"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="--width: 95%"></div>
+                        </div>
+                        <div class="progress-label">Días sin accidentes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="results">
+            <div class="result-card">
+                <div class="result-value">+78%</div>
+                <div class="result-label">Satisfacción del Cliente</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">3.2x</div>
+                <div class="result-label">Retorno de Inversión</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">94%</div>
+                <div class="result-label">Cumplimiento Normativo</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">24/7</div>
+                <div class="result-label">Monitoreo en Tiempo Real</div>
+            </div>
+        </div>
+        <div class="benefits">
+            <h2>Beneficios de la Integración ISO</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <h3 class="benefit-title">Eficiencia Operativa</h3>
+                    <p class="benefit-description">Optimización de procesos que reduce costos operativos y mejora la productividad mediante la eliminación de actividades que no agregan valor.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <h3 class="benefit-title">Reducción de Riesgos</h3>
+                    <p class="benefit-description">Identificación proactiva de riesgos y oportunidades, con planes de acción integrados que protegen tu negocio y garantizan la continuidad operativa.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌱</div>
+                    <h3 class="benefit-title">Sostenibilidad</h3>
+                    <p class="benefit-description">Gestión ambiental estratégica que reduce el impacto ecológico, optimiza recursos y posiciona a tu empresa como líder en responsabilidad corporativa.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🏆</div>
+                    <h3 class="benefit-title">Ventaja Competitiva</h3>
+                    <p class="benefit-description">Certificación ISO como distintivo de calidad que aumenta la confianza de clientes, socios y partes interesadas en tu organización.</p>
+                </div>
+            </div>
+        </div>
+        <div class="cta-section" id="contact">
+            <h2>Transforma tu Organización con ISO</h2>
+            <p>Implementamos sistemas de gestión integrados que no solo cumplen con las normativas, sino que generan valor sostenible para tu negocio. Nuestro enfoque combina excelencia operativa, sostenibilidad y innovación.</p>
+            <a href="mailto:jldimarco2005@yahoo.com.ar" class="cta-button">Solicitar Consultoría</a>
+        </div>
+    </div>
+    <button onclick="window.location.href='WEB-DNexus.html'" class="back-button">← Regresar a DNexus</button>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Inicializar partículas
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 100, density: { enable: true, value_area: 1000 } },
+                    color: { value: "#00f2ff" },
+                    shape: { type: "circle", stroke: { width: 0, color: "#000000" } },
+                    opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false } },
+                    size: { value: 3, random: true, anim: { enable: true, speed: 4, size_min: 0.3, sync: false } },
+                    line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.2, width: 1 },
+                    move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out", bounce: false, attract: { enable: true, rotateX: 600, rotateY: 1200 } }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    },
+                    modes: {
+                        repulse: { distance: 100, duration: 0.4 },
+                        push: { particles_nb: 4 }
+                    }
+                },
+                retina_detect: true
+            });
+
+            // Datos para los gráficos
+            const qualityData = {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Indicadores de Calidad',
+                    data: [75, 78, 82, 85, 88, 92],
+                    borderColor: '#0066ff',
+                    backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#0066ff',
+                    pointBorderColor: '#001f33',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true
+                }]
+            };
+
+            const environmentData = {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Reducción de Impacto Ambiental',
+                    data: [65, 68, 72, 76, 82, 88],
+                    borderColor: '#00cc88',
+                    backgroundColor: 'rgba(0, 204, 136, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#00cc88',
+                    pointBorderColor: '#001f33',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true
+                }]
+            };
+
+            const safetyData = {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Días sin Accidentes',
+                    data: [180, 190, 205, 220, 240, 255],
+                    borderColor: '#ff6600',
+                    backgroundColor: 'rgba(255, 102, 0, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ff6600',
+                    pointBorderColor: '#001f33',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true
+                }]
+            };
+
+            // Opciones para los gráficos
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#071022',
+                        titleColor: '#00f2ff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#00f2ff',
+                        borderWidth: 1,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
+                }
+            };
+
+            // Crear gráficos
+            setTimeout(() => {
+                new Chart(document.getElementById('qualityChart'), {
+                    type: 'line',
+                    data: qualityData,
+                    options: chartOptions
+                });
+
+                new Chart(document.getElementById('environmentChart'), {
+                    type: 'line',
+                    data: environmentData,
+                    options: chartOptions
+                });
+
+                new Chart(document.getElementById('safetyChart'), {
+                    type: 'line',
+                    data: safetyData,
+                    options: chartOptions
+                });
+
+                // Animar barras de progreso
+                document.querySelectorAll('.progress-fill').forEach(el => {
+                    const width = el.style.getPropertyValue('--width');
+                    el.style.width = '0';
+                    gsap.to(el, {
+                        duration: 2,
+                        width: width,
+                        ease: "power2.out"
+                    });
+                });
+            }, 500);
+
+            // Animaciones de aparición
+            gsap.from(".hero h2, .hero p, .cta-button", {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            gsap.from(".iso-card", {
+                duration: 0.8,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: ".iso-cards-grid"
+                }
+            });
+
+            gsap.from(".vis-card", {
+                duration: 0.8,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: ".visualization-section"
+                }
+            });
+
+            gsap.from(".result-card", {
+                duration: 0.8,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: ".results"
+                }
+            });
+
+            gsap.from(".benefit-card", {
+                duration: 0.8,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: ".benefits"
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Logistics - Optimización de Cadena de Suministro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #8a2be2;
+            --dark: #0a0e17;
+            --darker: #071022;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff3860;
+            --logistic-blue: #00b3ff;
+            --logistic-green: #00e68a;
+            --logistic-orange: #ff9900;
+            --text-color-secondary: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(20, 27, 45, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --hover-shadow: 0 12px 40px rgba(0, 242, 255, 0.2);
+        }
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .highlight {
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.7);
+        }
+        .subtitle {
+            color: var(--text-color-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 300;
+            max-width: 800px;
+        }
+        .hero {
+            position: relative;
+            height: 500px;
+            margin-bottom: 4rem;
+            border-radius: 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.9) 0%, rgba(20, 27, 45, 0.9) 100%);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 242, 255, 0.2);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem;
+        }
+        .hero h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            opacity: 0.9;
+        }
+        .cta-button {
+            background: rgba(0, 242, 255, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 1rem 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+        .cta-button:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(0, 242, 255, 0.5);
+        }
+        .logistics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 4rem;
+        }
+        .logistics-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .logistics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        .logistics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 242, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .logistics-card:hover::before {
+            left: 100%;
+        }
+        .logistics-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logistics-icon {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+        .logistics-description {
+            color: var(--text-color-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        .logistics-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .feature {
+            background: rgba(138, 43, 226, 0.1);
+            color: rgba(138, 43, 226, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+        .logistics-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        .logistics-1 .stat-value {
+            color: var(--logistic-blue);
+        }
+        .logistics-2 .stat-value {
+            color: var(--logistic-green);
+        }
+        .logistics-3 .stat-value {
+            color: var(--logistic-orange);
+        }
+        .visualization-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+            border: 1px solid var(--border-color);
+        }
+        .visualization-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .vis-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .vis-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        .vis-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+        .chart-container {
+            flex-grow: 1;
+            min-height: 120px;
+            max-height: 120px;
+            position: relative;
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 4rem;
+        }
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        .result-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.8rem;
+        }
+        .result-label {
+            font-size: 1rem;
+            color: var(--text-color-secondary);
+        }
+        .benefits {
+            margin-bottom: 4rem;
+        }
+        .benefits h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 2.2rem;
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .benefit-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .benefit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        .benefit-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.8;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .benefit-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+        .benefit-description {
+            color: var(--text-color-secondary);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        .cta-section {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.95) 0%, rgba(20, 27, 45, 0.95) 100%);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            margin-bottom: 4rem;
+        }
+        .cta-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            font-size: 2.2rem;
+        }
+        .cta-section p {
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            color: var(--text-color-secondary);
+            font-size: 1rem;
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(138, 43, 226, 0.8);
+            color: white;
+            border: 1px solid var(--secondary);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+        .back-button:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(138, 43, 226, 0.8);
+        }
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+            }
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .back-button {
+                bottom: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 11px;
+            }
+            .visualization-grid {
+                grid-template-columns: 1fr;
+            }
+            .results {
+                grid-template-columns: 1fr;
+            }
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <header>
+            <div>
+                <h1>QUANTUM <span class="highlight">LOGISTICS</span></h1>
+                <p class="subtitle">Optimiza cada eslabón de tu cadena de suministro con nuestras soluciones logísticas de vanguardia. Desde la gestión de inventarios y almacenes hasta la optimización de rutas y el seguimiento en tiempo real, garantizamos una eficiencia sin precedentes en toda tu operación.</p>
+            </div>
+        </header>
+        <div class="hero">
+            <div class="hero-content">
+                <h2>Rediseña tu <span class="highlight">CADENA DE SUMINISTRO</span></h2>
+                <p>Nuestra plataforma inteligente integra todos los componentes logísticos en un sistema unificado que anticipa problemas, optimiza recursos y maximiza el rendimiento operativo en tiempo real.</p>
+                <a href="#contact" class="cta-button">Solicitar Demostración</a>
+            </div>
+        </div>
+        <div class="logistics-grid">
+            <div class="logistics-card logistics-1">
+                <h3><span class="logistics-icon">📦</span> Gestión de Inventario</h3>
+                <p class="logistics-description">Sistema predictivo que anticipa necesidades, optimiza niveles de stock y previene rupturas mediante análisis avanzado de demanda.</p>
+                <div class="logistics-features">
+                    <span class="feature">Predicción</span>
+                    <span class="feature">Optimización</span>
+                </div>
+                <div class="logistics-stats">
+                    <div class="stat">
+                        <div class="stat-value">+45%</div>
+                        <div class="stat-label">ROTACIÓN</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">DISPONIBILIDAD</div>
+                    </div>
+                </div>
+            </div>
+            <div class="logistics-card logistics-2">
+                <h3><span class="logistics-icon">🚚</span> Optimización de Rutas</h3>
+                <p class="logistics-description">Algoritmos avanzados que calculan las rutas más eficientes considerando tráfico, condiciones climáticas y costos de combustible.</p>
+                <div class="logistics-features">
+                    <span class="feature">Rutas dinámicas</span>
+                    <span class="feature">Reducción de costos</span>
+                </div>
+                <div class="logistics-stats">
+                    <div class="stat">
+                        <div class="stat-value">-40%</div>
+                        <div class="stat-label">COMBUSTIBLE</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">A TIEMPO</div>
+                    </div>
+                </div>
+            </div>
+            <div class="logistics-card logistics-3">
+                <h3><span class="logistics-icon">📊</span> Control de Almacenes</h3>
+                <p class="logistics-description">Automatización completa de operaciones en almacén con tecnología IoT, robots de picking y gestión inteligente del espacio.</p>
+                <div class="logistics-features">
+                    <span class="feature">Automatización</span>
+                    <span class="feature">IoT integrado</span>
+                </div>
+                <div class="logistics-stats">
+                    <div class="stat">
+                        <div class="stat-value">-60%</div>
+                        <div class="stat-label">ERRORES</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">99%</div>
+                        <div class="stat-label">PRECISIÓN</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="visualization-section">
+            <h2>Visualización de la Cadena de Suministro</h2>
+            <div class="visualization-grid">
+                <div class="vis-card">
+                    <h3><span class="logistics-icon">📈</span> Rendimiento de Envíos</h3>
+                    <div class="chart-container">
+                        <canvas id="shipmentsChart"></canvas>
+                    </div>
+                </div>
+                <div class="vis-card">
+                    <h3><span class="logistics-icon">📦</span> Niveles de Inventario</h3>
+                    <div class="chart-container">
+                        <canvas id="inventoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="vis-card">
+                    <h3><span class="logistics-icon">🛣️</span> Optimización de Rutas</h3>
+                    <div class="chart-container">
+                        <canvas id="routesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="results">
+            <div class="result-card">
+                <div class="result-value">+78%</div>
+                <div class="result-label">Eficiencia Operativa</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">3.2x</div>
+                <div class="result-label">Retorno de Inversión</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">94%</div>
+                <div class="result-label">Satisfacción</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value">24/7</div>
+                <div class="result-label">Monitoreo</div>
+            </div>
+        </div>
+        <div class="benefits">
+            <h2>Beneficios de la Transformación</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <h3 class="benefit-title">Reducción de Costos</h3>
+                    <p class="benefit-description">Optimización de rutas y reducción de inventarios innecesarios que se traduce en ahorros significativos.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏱️</div>
+                    <h3 class="benefit-title">Velocidad de Entrega</h3>
+                    <p class="benefit-description">Sistemas automatizados y rutas optimizadas que aceleran los tiempos de entrega.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌱</div>
+                    <h3 class="benefit-title">Sostenibilidad</h3>
+                    <p class="benefit-description">Reducción del consumo de combustible y huella de carbono mínima gracias a la planificación inteligente.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <h3 class="benefit-title">Resiliencia</h3>
+                    <p class="benefit-description">Capacidad de adaptación ante interrupciones con sistemas de contingencia que garantizan continuidad.</p>
+                </div>
+            </div>
+        </div>
+        <div class="cta-section" id="contact">
+            <h2>Transforma tu Operación Logística</h2>
+            <p>Implementamos soluciones integrales que no solo mejoran la eficiencia, sino que crean ventajas competitivas sostenibles.</p>
+            <a href="mailto:jldimarco2005@yahoo.com.ar" class="cta-button">Solicitar Consultoría</a>
+        </div>
+    </div>
+    <button onclick="window.location.href='WEB-DNexus.html'" class="back-button">← Regresar a DNexus</button>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Inicializar partículas
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#00f2ff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: { enable: true, distance: 150, color: "#00f2ff", opacity: 0.4, width: 1 },
+                    move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out" }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" }
+                    }
+                }
+            });
+
+            // Crear gráficos con Chart.js
+            createCharts();
+        });
+
+        function createCharts() {
+            // Datos para el gráfico de rendimiento de envíos
+            const shipmentsCtx = document.getElementById('shipmentsChart').getContext('2d');
+            const shipmentsChart = new Chart(shipmentsCtx, {
+                type: 'line',
+                 {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        data: [85, 88, 90, 91, 92, 92],
+                        borderColor: '#00b3ff',
+                        backgroundColor: 'rgba(0, 179, 255, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00b3ff',
+                        pointBorderColor: '#000',
+                        pointBorderWidth: 1,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 14, 23, 0.9)',
+                            titleColor: '#00f2ff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#00f2ff',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            padding: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false,
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            // Datos para el gráfico de niveles de inventario
+            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+            const inventoryChart = new Chart(inventoryCtx, {
+                type: 'bar',
+                 {
+                    labels: ['A', 'B', 'C', 'D', 'E'],
+                    datasets: [{
+                        data: [85, 92, 78, 88, 95],
+                        backgroundColor: 'rgba(0, 230, 138, 0.8)',
+                        borderColor: '#00e68a',
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 14, 23, 0.9)',
+                            titleColor: '#00f2ff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#00f2ff',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            padding: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false,
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            // Datos para el gráfico de optimización de rutas
+            const routesCtx = document.getElementById('routesChart').getContext('2d');
+            const routesChart = new Chart(routesCtx, {
+                type: 'radar',
+                 {
+                    labels: ['Dist', 'Tiempo', 'Comb', 'Costo', 'Entregas'],
+                    datasets: [{
+                        data: [70, 65, 75, 70, 60],
+                        backgroundColor: 'rgba(255, 170, 0, 0.2)',
+                        borderColor: '#ffaa00',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ffaa00',
+                        pointBorderColor: '#000',
+                        pointBorderWidth: 1,
+                        pointRadius: 3
+                    }, {
+                        data: [40, 85, 45, 40, 85],
+                        backgroundColor: 'rgba(0, 242, 255, 0.2)',
+                        borderColor: '#00f2ff',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00f2ff',
+                        pointBorderColor: '#000',
+                        pointBorderWidth: 1,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            pointLabels: {
+                                color: 'transparent'
+                            },
+                            ticks: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 14, 23, 0.9)',
+                            titleColor: '#00f2ff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#00f2ff',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            padding: 6
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
